@@ -6,39 +6,56 @@ import java.io.*;
 import java.util.ArrayList;
 
 public class main {
-    public static boolean compareArrays(char[] a, ArrayList<Character> b) {
-        // we have to sort, otherwise we'll encounter this problem where even if the correct guess characters are collected, the order will be bad
-        // |s|cream
-        // |a|ecrsm  -> comparison fails!
-        Arrays.sort(a);
-        String convert = b.toString(); // fixme: converting to string means adding '[' and ']' needlessly
-        char[] bb = convert.toCharArray();
-        Arrays.sort(bb);
-
-        // compare
-        for (int i = 0; i < a.length; i++) {
-            if (bb[i] != a[i]) {
-                return false;
-            }
+    public static void fillRemainingGuesses (ArrayList<Character> remainingGuesses) {
+        char[] englishAlphabet = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'};
+        for (char c : englishAlphabet) {
+            remainingGuesses.add(c);
         }
-        return true;
     }
 
     public static void main(String[] args) {
-        System.out.println("Hangman - Guess the 6 letter, lowercase letter only word!");
-
-        // 1. take random word and convert into chararray
-        Random random = new Random();
-        int RNG = random.nextInt(1, 15);
+        // rng 1 string and convert to char[]
         String[] wordArray = {"stride", "retain", "coerce", "symbol", "person", "scream", "murder", "volume", "devote", "wander", "create", "flight", "rotate", "junior", "harbor"};
+        Random random = new Random();
+        int RNG = random.nextInt(1, wordArray.length);
         char[] charArray = wordArray[RNG].toCharArray();
 
-        // 2. take guess from user
+        // needed for taking input
         InputStreamReader InputObj = new InputStreamReader(System.in);
         BufferedReader BufferObj = new BufferedReader(InputObj);
 
+        ArrayList<Character> incorrectGuesses = new ArrayList<Character>(); // we use arraylist instead of vectors
+        ArrayList<Character> remainingGuesses = new ArrayList<Character>();
+        fillRemainingGuesses(remainingGuesses);
+        char[] guessedChars = {'_', '_', '_', '_', '_', '_'};
+
+        System.out.println("Hangman - Guess the 6 letter, lowercase only word!");
+        String clearScreen = "\r\n\r\n\r\n";
+
         boolean gameWon = false;
         while(!gameWon) {
+            // check if we won already
+            for (int i = 0; i < guessedChars.length; i++) {
+                if (guessedChars[i] == '_') {
+                    break;
+                }
+                if (i == guessedChars.length -1) {
+                    System.out.println("Game won!");
+                    gameWon = true;
+                    break;
+                }
+            }
+            if (gameWon) {
+                break;
+            }
+
+            // check if we have guesses remaining
+            if (incorrectGuesses.size() == 10) {
+                System.out.println("You ran out of guesses. Game lost!");
+                System.exit(0);
+            }
+
+            // take input
             System.out.println("Guess a character: ");
             char c = 'A';
             try {
@@ -48,42 +65,32 @@ public class main {
                 e.printStackTrace();
             }
 
-            ArrayList<Character> correctGuesses = new ArrayList<Character>();   // we use arraylist instead of vectors
-            ArrayList<Character> incorrectGuesses = new ArrayList<Character>();
-
-            // 3. check if we have guesses remaining
-            int incorrectGuessAmount = 0;
-            if (incorrectGuessAmount == 10) {
-                System.out.println("You ran out of guesses. Game lost!");
-                System.exit(0);
-            }
-
-            // 4.a check if guess was correct
+            // check if guess was correct
             boolean guessedCorrectly = false;
             for (int i = 0; i < charArray.length; i++) {
                 if (!guessedCorrectly) {
                     if (c == charArray[i]) {
                         System.out.println("Your guess was correct!");
-                        correctGuesses.add(c);
+                        guessedChars[i] = charArray[i];
                         guessedCorrectly = true;
+                        remainingGuesses.remove(Character.valueOf(c));
+                        break;
                     }
                 }
             }
 
-            // winning condition
-            if (!correctGuesses.isEmpty()) {
-                gameWon = compareArrays(charArray, correctGuesses);
-            }
-
-            // 4.b incorrect guess
+            // incorrect guess
             if (!guessedCorrectly) {
                 System.out.println("Your guess was incorrect!");
-                incorrectGuessAmount++;
                 incorrectGuesses.add(c);
-                guessedCorrectly = false;
+                remainingGuesses.remove(Character.valueOf(c));
             }
-            // fixme: incorrect guesses aren't rendered after 2nd turn
-            System.out.println("Incorrect guesses: " + incorrectGuesses);
+
+            // game progress info
+            System.out.println(guessedChars);
+            System.out.println("You can make " + (10 - incorrectGuesses.size()) + " more wrong guesses!");
+            System.out.println("Remaining guesses: " + remainingGuesses);
+            System.out.println(clearScreen);
         }
     }
 }
