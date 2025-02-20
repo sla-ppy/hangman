@@ -5,7 +5,6 @@ import java.util.ArrayList;
 public class Main {
     public static void main(String[] args) {
         char[] chosenWord = Vocabulary.generate();
-        System.out.println(chosenWord);
 
         // prepare guess structure equal in length to chosen word
         StringBuilder string = new StringBuilder();
@@ -21,8 +20,7 @@ public class Main {
 
         System.out.println("Hangman - Guess the 6 letter, lowercase only word!");
 
-        boolean gameWon = false;
-        while(!gameWon) {
+        while(true) {
             // check if we have guesses remaining
             if (incorrectGuesses.size() == 10) {
                 System.out.println("You ran out of lives. Game lost!");
@@ -79,7 +77,6 @@ public class Main {
                 }
                 if (i == guessedChars.length -1) {
                     System.out.println("Game won!");
-                    gameWon = true;
                     break;
                 }
             }

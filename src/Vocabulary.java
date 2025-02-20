@@ -21,7 +21,7 @@ public class Vocabulary {
 
         // choose and return random word
         Random random = new Random();
-        int RNG = random.nextInt(1, words.length);
+        int RNG = random.nextInt(0, words.length);
         return words[RNG].toCharArray();
     }
 }
